@@ -13,12 +13,29 @@
 
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
+void do_movement();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
+GLfloat lastX = 400, lastY = 300;
+
+GLfloat pitch = 0.0f;
+GLfloat yaw = 0.0f;
 
 // Holds uniform value of texture mix
 GLfloat MIX_VALUE = 0.2f;
+
+// Camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
+GLfloat lastFrame = 0.0f;  	// Time of last frame
+
+bool keys[1024];
 
 int main()
 {
@@ -41,6 +58,8 @@ int main()
 	glfwMakeContextCurrent(window);
 	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
@@ -59,14 +78,6 @@ int main()
 	Shader ourShader("vertex.glsl", "fragment.glsl");
 
 	// Texture coordinates range from 0 to 1 in the x and y axis (2D texture images)
-	//GLfloat vertices[] = {
-	//	// Positions        // Texture Coords (Zoom in)
-	//	0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // Top Right
-	//	0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // Bottom Right
-	//	-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // Bottom Left
-	//	-0.5f,  0.5f, 0.0f, 0.0f, 1.0f   // Top Left
-	//};
-
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -178,7 +189,7 @@ int main()
 	// =====================
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
-											// Set the texture wrapping parameters
+	// Set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// Set texture filtering parameters
@@ -193,8 +204,12 @@ int main()
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
+		do_movement();
 
 		// Render
 		// Clear the colorbuffer
@@ -204,12 +219,21 @@ int main()
 		// Activate shader
 		ourShader.Use();
 
+		glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+
+		direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+		direction.y = sin(glm::radians(pitch));
+		direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
 		//glm::mat4 model;
 		//model = glm::rotate(model, (GLfloat)glfwGetTime() * 50.0f, glm::vec3(0.5f, 1.0f, 0.0f));
 		//model = glm::rotate(model, -55.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		/*GLfloat radius = 10.0f;
+		GLfloat camX = sin(glfwGetTime()) * radius;
+		GLfloat camZ = cos(glfwGetTime()) * radius;*/
 		glm::mat4 view;
-		// Note that we're translating the scene in the reverse direction of where we want to move
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		glm::mat4 projection;
 		projection = glm::perspective(45.0f, GLfloat(WIDTH) / GLfloat(HEIGHT), 0.1f, 100.0f);
 
@@ -260,6 +284,33 @@ int main()
 	return 0;
 }
 
+void do_movement()
+{
+	// Camera controls
+	GLfloat cameraSpeed = 3.0f * deltaTime;
+	GLfloat mixSpeed = 0.001f;
+	if (keys[GLFW_KEY_W])
+		cameraPos += cameraSpeed * cameraFront;
+	if (keys[GLFW_KEY_S])
+		cameraPos -= cameraSpeed * cameraFront;
+	if (keys[GLFW_KEY_A])
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (keys[GLFW_KEY_D])
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (keys[GLFW_KEY_UP])
+	{
+		MIX_VALUE += mixSpeed;
+		if (MIX_VALUE >= 1.0f)
+			MIX_VALUE = 1.0f;
+	}
+	if (keys[GLFW_KEY_DOWN])
+	{
+		MIX_VALUE -= mixSpeed;
+		if (MIX_VALUE <= 0.0f)
+			MIX_VALUE = 0.0f;
+	}
+}
+
 void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
 	// When a user presses the escape key, we set the WindowShouldClose property to true,
@@ -267,16 +318,26 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	// Change value of uniform with arrow keys (sets amount of textre mix)
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-	{
-		MIX_VALUE += 0.1f;
-		if (MIX_VALUE >= 1.0f)
-			MIX_VALUE = 1.0f;
-	}
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-	{
-		MIX_VALUE -= 0.1f;
-		if (MIX_VALUE <= 0.0f)
-			MIX_VALUE = 0.0f;
-	}
+	if (action == GLFW_PRESS)
+		keys[key] = true;
+	else if (action == GLFW_RELEASE)
+		keys[key] = false;
+}
+
+void mouse_callback(GLFWwindow * window, double xpos, double ypos)
+{
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = lastY - ypos; // Reversed since y-coordinates range from bottom to top
+	lastX = xpos;
+	lastY = ypos;
+
+	GLfloat sensitivity = 0.05f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+	yaw += xoffset;
+	pitch += yoffset;
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
 }

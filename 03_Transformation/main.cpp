@@ -66,11 +66,11 @@ int main()
 
 	// Texture coordinates range from 0 to 1 in the x and y axis (2D texture images)
 	GLfloat vertices[] = {
-		// Positions        // Colors         // Texture Coords (Zoom in)
-		0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // Top Right
-		0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // Bottom Right
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Bottom Left
-		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // Top Left
+		// Positions        // Texture Coords (Zoom in)
+		0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // Top Right
+		0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // Bottom Right
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // Bottom Left
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f   // Top Left
 	};
 	GLuint indices[] = {  // Note that we start from 0!
 		0, 1, 3, // First Triangle
@@ -92,14 +92,11 @@ int main()
 
 	// glVertexAttribPointer(index, size, type, normalized, stride, pointer)
 	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	// Color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
 	// TexCoord attributes
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 

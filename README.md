@@ -5,7 +5,7 @@ This is my [OpenGL](https://www.opengl.org/) practise following [this tutorial](
 * [01 Draw a triangle](01_Triangle)
 * [02 Draw texture](02_Textures)
 * [03 Object transformation using GLM](03_Transformation)
-* [04 Draw texture](04_Coordinate)
+* [04 Coordinate system](04_Coordinate)
 
 ## Packages
 * [GLFW](http://www.glfw.org/download.html)
