@@ -20,8 +20,8 @@ void do_movement();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
-GLfloat lastX =  WIDTH  / 2.0;
-GLfloat lastY =  HEIGHT / 2.0;
+GLfloat lastX = WIDTH / 2.0;
+GLfloat lastY = HEIGHT / 2.0;
 
 GLfloat pitch = 0.0f;
 GLfloat yaw = -90.0f;
@@ -169,43 +169,15 @@ int main()
 
 	glBindVertexArray(0);
 
-	// Load and create a texture
-	GLuint texture1, texture2;
-	// =====================
-	// Texture 1
-	// =====================
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
-											// Set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	// Load image, create texture and generate mipmaps
-	int width, height;
-	unsigned char* image = SOIL_load_image("../Public/container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
-
-	// =====================
-	// Texture 2
-	// =====================
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2); // All upcoming GL_TEXTURE_2D operations now have effect on this texture object
-	// Set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	image = SOIL_load_image("../Public/awesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0); // Unbind texture when done, so we won't accidentily mess up our texture.
+	GLuint lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+	// We only need to bind to the VBO, the container's VBO's data already contains the correct data.
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// Set the vertex attributes (only position data for our lamp)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
 
 	// Game loop
 	while (!glfwWindowShouldClose(window))
@@ -222,23 +194,9 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Bind Textures using texture units
-		glActiveTexture(GL_TEXTURE0);  // GL_TEXTURE0 is actived by default
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
-
 		// Activate shader
 		ourShader.Use();
 
-		//glm::mat4 model;
-		//model = glm::rotate(model, (GLfloat)glfwGetTime() * 50.0f, glm::vec3(0.5f, 1.0f, 0.0f));
-		//model = glm::rotate(model, -55.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-		/*GLfloat radius = 10.0f;
-		GLfloat camX = sin(glfwGetTime()) * radius;
-		GLfloat camZ = cos(glfwGetTime()) * radius;*/
 		glm::mat4 view;
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		glm::mat4 projection;
@@ -258,7 +216,7 @@ int main()
 
 		// Draw container
 		glBindVertexArray(VAO);
-		for (GLuint i = 0; i < 10; i++)
+		for (GLuint i = 0; i < 2; i++)
 		{
 			glm::mat4 model;
 			model = glm::translate(model, cubePositions[i]);

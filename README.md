@@ -6,6 +6,7 @@ This is my [OpenGL](https://www.opengl.org/) practise following [this tutorial](
 * [02 Draw texture](02_Textures)
 * [03 Object transformation using GLM](03_Transformation)
 * [04 Coordinate system](04_Coordinate)
+* [05 Camera](05_Camera) Not fully understood. Need further investigation.
 
 ## Packages
 * [GLFW](http://www.glfw.org/download.html)

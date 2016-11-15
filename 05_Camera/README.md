@@ -6,4 +6,3 @@
 ## Euler Angles
 * Pitch, yaw and roll
 	![euler](http://www.learnopengl.com/img/getting-started/camera_pitch_yaw_roll.png)
-	

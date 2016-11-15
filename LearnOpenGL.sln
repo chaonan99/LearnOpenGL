@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04_Coordinate", "04_Coordin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_Camera", "05_Camera\05_Camera.vcxproj", "{DF635177-779F-4071-B9BD-450AC328A654}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "06_Color", "06_Color\06_Color.vcxproj", "{360CBF03-F506-456A-B59F-A8F8BBE65E62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{DF635177-779F-4071-B9BD-450AC328A654}.Release|x64.Build.0 = Release|x64
 		{DF635177-779F-4071-B9BD-450AC328A654}.Release|x86.ActiveCfg = Release|Win32
 		{DF635177-779F-4071-B9BD-450AC328A654}.Release|x86.Build.0 = Release|Win32
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Debug|x64.ActiveCfg = Debug|x64
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Debug|x64.Build.0 = Debug|x64
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Debug|x86.ActiveCfg = Debug|Win32
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Debug|x86.Build.0 = Debug|Win32
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Release|x64.ActiveCfg = Release|x64
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Release|x64.Build.0 = Release|x64
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Release|x86.ActiveCfg = Release|Win32
+		{360CBF03-F506-456A-B59F-A8F8BBE65E62}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
