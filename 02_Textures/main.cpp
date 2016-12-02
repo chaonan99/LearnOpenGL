@@ -53,7 +53,7 @@ int main()
 
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+
 	// Define the viewport dimensions
 	glViewport(0, 0, WIDTH, HEIGHT);
 
@@ -66,7 +66,7 @@ int main()
 		0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 0.55f, 0.55f, 1.0f, 1.0f,  // Top Right
 		0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.55f, 0.45f, 1.0f, 0.0f,  // Bottom Right
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.45f, 0.45f, 0.0f, 0.0f,  // Bottom Left
-		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.45f, 0.55f, 0.0f, 1.0f   // Top Left 
+		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.45f, 0.55f, 0.0f, 1.0f   // Top Left
 	};
 	GLuint indices[] = {  // Note that we start from 0!
 		0, 1, 3, // First Triangle
@@ -77,7 +77,7 @@ int main()
 	glGenBuffers(1, &VBO);
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &EBO);
-	
+
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -101,7 +101,7 @@ int main()
 
 	glBindVertexArray(0);
 
-	// Load and create a texture 
+	// Load and create a texture
 	GLuint texture1, texture2;
 	// =====================
 	// Texture 1
@@ -149,7 +149,7 @@ int main()
 		// Clear the colorbuffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		
+
 		// Activate shader
 		ourShader.Use();
 
@@ -159,7 +159,7 @@ int main()
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture1"), 0);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);		
+		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture2"), 1);
 
 		// Set current value of uniform mix
 		glUniform1f(glGetUniformLocation(ourShader.Program, "mixValue"), MIX_VALUE);
@@ -184,7 +184,7 @@ int main()
 
 void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode)
 {
-	// When a user presses the escape key, we set the WindowShouldClose property to true, 
+	// When a user presses the escape key, we set the WindowShouldClose property to true,
 	// closing the application
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);

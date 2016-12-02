@@ -24,7 +24,7 @@ const GLfloat YAW        = -90.0f;
 const GLfloat PITCH      =  0.0f;
 const GLfloat SPEED      =  3.0f;
 const GLfloat SENSITIVTY =  0.25f;
-const GLfloat ZOOM       =  179.9f;
+const GLfloat ZOOM       =  60.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding
@@ -123,12 +123,12 @@ public:
     // Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(GLfloat yoffset)
     {
-        if (this->Zoom >= 1.0f && this->Zoom <= 45.0f)
+        if (this->Zoom >= 1.0f && this->Zoom <= 179.9f)
             this->Zoom -= yoffset;
         if (this->Zoom <= 1.0f)
             this->Zoom = 1.0f;
-        if (this->Zoom >= 45.0f)
-            this->Zoom = 45.0f;
+        if (this->Zoom >= 179.9f)
+            this->Zoom = 179.9f;
     }
 
 private:
