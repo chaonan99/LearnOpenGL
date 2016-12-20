@@ -7,6 +7,9 @@ glfw/
 *.db
 *.opendb
 .vs/
+*.rar
+nanosuit/
+skybox/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

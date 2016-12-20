@@ -3,12 +3,12 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>F:\OpenGL\include;F:\OpenGL\glew\glew-2.0.0\include;F:\OpenGL\SOIL\src;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\OpenGL\lib;F:\OpenGL\glew\glew-2.0.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>F:\OpenGL\include;F:\OpenGL\glew\glew-2.0.0\include;F:\OpenGL\SOIL\src;F:\OpenGL\assimp\assimp-3.3.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>F:\OpenGL\lib;F:\OpenGL\glew\glew-2.0.0\lib\Release\x64;F:\OpenGL\assimp\assimp-3.3.1\build\vc14\code\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32s.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_x64.lib;opengl32.lib;glew32s.lib;SOIL_x64.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
