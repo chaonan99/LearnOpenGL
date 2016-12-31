@@ -13,7 +13,7 @@
 // GL includes
 #include "../Public/Shader.h"
 #include "../Public/Camera.h"
-#include "../Public/Model.h"
+#include "Model.h"
 
 // GLM Mathemtics
 #include <glm/glm.hpp>
@@ -75,18 +75,11 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// Setup and compile our shaders
-	//Shader objectShader("vertex.glsl", "geometry.glsl", "fragment.glsl");
-	Shader shader("single_color_vertex.glsl", "single_color_fragment.glsl");
-	Model meshModel = Model("../Public/nanosuit/nanosuit.obj");
+	Shader shader("vertex.glsl", "fragment.glsl");
+	Shader instanceShader("instance_vertex.glsl", "fragment.glsl");
 
 #pragma region "object_initialization"
 	// Set the object data (buffers, vertex attributes)
-	//GLfloat testVertices[] = {
-	//	// Positions
-	//	0.3f,  0.3f, 1.0f, 0.0f, 0.0f,
-	//	0.2f, -0.3f, 0.0f, 1.0f, 0.0f,
-	//	-0.1f, 0.5f, 0.0f, 0.0f, 1.0f
-	//};
 	//GLfloat testVertices[] = {
 	//	// Positions     // Colors
 	//	-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
@@ -143,12 +136,12 @@ int main()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboExampleBlock, 0, 2 * sizeof(glm::mat4));
 
-	GLuint amount = 2000;
+	GLuint amount = 20000;
 	glm::mat4* modelMatrices;
 	modelMatrices = new glm::mat4[amount];
 	srand(glfwGetTime()); // initialize random seed	
-	GLfloat radius = 50.0;
-	GLfloat offset = 2.5f;
+	GLfloat radius = 70.0;
+	GLfloat offset = 20.0f;
 	for (GLuint i = 0; i < amount; i++)
 	{
 		glm::mat4 model;
@@ -174,6 +167,35 @@ int main()
 	Model planet = Model("../Public/planet/planet.obj");
 	Model rock = Model("../Public/rock/rock.obj");
 
+	// Vertex Buffer Object
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (GLuint i = 0; i < rock.meshes.size(); i++)
+	{
+		GLuint VAO = rock.meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// Vertex Attributes
+		GLsizei vec4Size = sizeof(glm::vec4);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (GLvoid*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (GLvoid*)(vec4Size));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (GLvoid*)(2 * vec4Size));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (GLvoid*)(3 * vec4Size));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
 #pragma endregion
 
 	// Game loop
@@ -195,8 +217,6 @@ int main()
 
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glBindBuffer(GL_UNIFORM_BUFFER, uboExampleBlock);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
@@ -210,26 +230,18 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		planet.Draw(shader);
 		// Draw Asteroid circle
-		for (GLuint i = 0; i < amount; i++)
+		instanceShader.Use();
+		for (GLuint i = 0; i < rock.meshes.size(); i++)
 		{
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-			rock.Draw(shader);
+			glBindVertexArray(rock.meshes[i].VAO);
+			glDrawElementsInstanced(
+				GL_TRIANGLES, rock.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount
+			);
+			glBindVertexArray(0);
 		}
-		
+
 		//glBindVertexArray(testVAO);
 		//glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
-		//glBindVertexArray(0);
-
-		//shader.Use();
-		//glm::mat4 model = glm::mat4();
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//meshModel.Draw(shader);
-		//objectShader.Use();
-		//glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//meshModel.Draw(objectShader);
-
-		//glBindVertexArray(testVAO);
-		//glDrawArrays(GL_POINTS, 0, 3);
 		//glBindVertexArray(0);
 
 		// Swap the buffers

@@ -75,104 +75,40 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// Setup and compile our shaders
-	//Shader objectShader("vertex.glsl", "geometry.glsl", "fragment.glsl");
-	Shader shader("single_color_vertex.glsl", "single_color_fragment.glsl");
+	Shader objectShader("vertex.glsl", "geometry.glsl", "fragment.glsl");
+	Shader shader("obj_vertex.glsl", "obj_fragment.glsl");
 	Model meshModel = Model("../Public/nanosuit/nanosuit.obj");
 
 #pragma region "object_initialization"
 	// Set the object data (buffers, vertex attributes)
-	//GLfloat testVertices[] = {
-	//	// Positions
-	//	0.3f,  0.3f, 1.0f, 0.0f, 0.0f,
-	//	0.2f, -0.3f, 0.0f, 1.0f, 0.0f,
-	//	-0.1f, 0.5f, 0.0f, 0.0f, 1.0f
-	//};
-	//GLfloat testVertices[] = {
-	//	// Positions     // Colors
-	//	-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-	//	0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-	//	-0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
-
-	//	-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-	//	0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-	//	0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-	//};
-	//glm::vec2 translations[100];
-	//int index = 0;
-	//GLfloat offset = 0.1f;
-	//for (GLint y = -10; y < 10; y += 2)
-	//{
-	//	for (GLint x = -10; x < 10; x += 2)
-	//	{
-	//		glm::vec2 translation;
-	//		translation.x = (GLfloat)x / 10.0f + offset;
-	//		translation.y = (GLfloat)y / 10.0f + offset;
-	//		translations[index++] = translation;
-	//	}
-	//}
-
-	//GLuint testVAO, testVBO, instanceVBO;
-	//glGenVertexArrays(1, &testVAO);
-	//glGenBuffers(1, &testVBO);
-	//glBindVertexArray(testVAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, testVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(testVertices), &testVertices, GL_STATIC_DRAW);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GL_FLOAT)));
-
-	//glGenBuffers(1, &instanceVBO);
-	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	//glEnableVertexAttribArray(2);
-	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glVertexAttribDivisor(2, 1);
-	//glBindVertexArray(0);	
+	GLfloat testVertices[] = {
+		// Positions
+		0.3f,  0.3f, 1.0f, 0.0f, 0.0f,
+		0.2f, -0.3f, 0.0f, 1.0f, 0.0f,
+		-0.1f, 0.5f, 0.0f, 0.0f, 1.0f
+	};
+	GLuint testVAO, testVBO;
+	glGenVertexArrays(1, &testVAO);
+	glGenBuffers(1, &testVBO);
+	glBindVertexArray(testVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, testVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(testVertices), &testVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GL_FLOAT)));
+	glBindVertexArray(0);
 
 	GLuint uniformBlockIndex = glGetUniformBlockIndex(shader.Program, "Matrices");
+	GLuint uniformBlockIndexObj = glGetUniformBlockIndex(objectShader.Program, "Matrices");
 	glUniformBlockBinding(shader.Program, uniformBlockIndex, 0);
+	glUniformBlockBinding(objectShader.Program, uniformBlockIndexObj, 0);
 	GLuint uboExampleBlock;
 	glGenBuffers(1, &uboExampleBlock);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboExampleBlock);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW); // allocate 150 bytes of memory
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboExampleBlock, 0, 2 * sizeof(glm::mat4));
-
-	GLuint amount = 2000;
-	glm::mat4* modelMatrices;
-	modelMatrices = new glm::mat4[amount];
-	srand(glfwGetTime()); // initialize random seed	
-	GLfloat radius = 50.0;
-	GLfloat offset = 2.5f;
-	for (GLuint i = 0; i < amount; i++)
-	{
-		glm::mat4 model;
-		// 1. Translation: displace along circle with 'radius' in range [-offset, offset]
-		GLfloat angle = (GLfloat)i / (GLfloat)amount * 360.0f;
-		GLfloat displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat x = sin(angle) * radius + displacement;
-		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat y = displacement * 0.4f; // y value has smaller displacement
-		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat z = cos(angle) * radius + displacement;
-		model = glm::translate(model, glm::vec3(x, y, z));
-		// 2. Scale: Scale between 0.05 and 0.25f
-		GLfloat scale = (rand() % 20) / 100.0f + 0.05;
-		model = glm::scale(model, glm::vec3(scale));
-		// 3. Rotation: add random rotation around a (semi)randomly picked rotation axis vector
-		GLfloat rotAngle = (rand() % 360);
-		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
-		// 4. Now add to list of matrices
-		modelMatrices[i] = model;
-	}
-
-	Model planet = Model("../Public/planet/planet.obj");
-	Model rock = Model("../Public/rock/rock.obj");
 
 #pragma endregion
 
@@ -195,38 +131,18 @@ int main()
 
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(camera.Zoom, (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glBindBuffer(GL_UNIFORM_BUFFER, uboExampleBlock);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		GLuint modelLoc = glGetUniformLocation(shader.Program, "model");
 		shader.Use();
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, -5.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		planet.Draw(shader);
-		// Draw Asteroid circle
-		for (GLuint i = 0; i < amount; i++)
-		{
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-			rock.Draw(shader);
-		}
-		
-		//glBindVertexArray(testVAO);
-		//glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
-		//glBindVertexArray(0);
-
-		//shader.Use();
-		//glm::mat4 model = glm::mat4();
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//meshModel.Draw(shader);
-		//objectShader.Use();
-		//glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//meshModel.Draw(objectShader);
+		glm::mat4 model = glm::mat4();
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		meshModel.Draw(shader);
+		objectShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(objectShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		meshModel.Draw(objectShader);
 
 		//glBindVertexArray(testVAO);
 		//glDrawArrays(GL_POINTS, 0, 3);

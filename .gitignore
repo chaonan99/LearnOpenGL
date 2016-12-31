@@ -10,6 +10,8 @@ glfw/
 *.rar
 nanosuit/
 skybox/
+planet/
+rock/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
