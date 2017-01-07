@@ -21,12 +21,6 @@
     <ClInclude Include="..\Public\Shader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Mesh.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Model.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Public\Shader.cpp">

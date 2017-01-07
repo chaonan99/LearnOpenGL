@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FA00C730-D17B-478E-BDB4-BD3EFF97CEB7}</ProjectGuid>
-    <RootNamespace>My00_Random</RootNamespace>
+    <ProjectGuid>{D7442839-0FB4-4656-A87C-D40CCC5472CE}</ProjectGuid>
+    <RootNamespace>My16_NMapping</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -115,8 +115,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Camera.h" />
-    <ClInclude Include="..\Public\Mesh.h" />
-    <ClInclude Include="..\Public\Model.h" />
     <ClInclude Include="..\Public\Shader.h" />
   </ItemGroup>
   <ItemGroup>

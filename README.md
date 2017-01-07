@@ -14,6 +14,13 @@
 * [09 Model loading](09_Model) Model loading using Assimp.
 * [10 Blending](10_Blending) Use blending technique to represent transparent objects.
 * [11 Skybox](11_Skybox) Background, reflection and refraction.
+* [12 Geometry Shader](12_GShader) First step with geometry shader.
+* [13 Instancing](13_Instancing) Multi-instance rendering with geometry shader.
+* [14 Blinn Phong](14_Phong) Blinn Phong lighting model and Gamma correction.
+* [15 Shadow](15_Shadow) First step to render shadow.
+* [16 Normal and parallax mapping](16_NMapping) Improve the scene by normal mapping and parallax mapping.
+* [17 HDR and blooming](17_HDR) Improved light with HDR and blooming technique.
+* [18 Deferred shading](18_Deferred) Optimize complex scene with large number of lights using deferred shading/rendering.
 
 ## Packages
 * [GLFW](http://www.glfw.org/download.html)
