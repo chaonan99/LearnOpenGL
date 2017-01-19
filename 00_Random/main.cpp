@@ -22,6 +22,78 @@
 // Other Libs
 #include <SOIL.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H 
+
+GLenum glCheckError_(const char *file, int line)
+{
+	GLenum errorCode;
+	while ((errorCode = glGetError()) != GL_NO_ERROR)
+	{
+		std::string error;
+		switch (errorCode)
+		{
+		case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+		case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+		case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+		case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+		case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+		case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+		}
+		std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+	}
+	return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
+
+void APIENTRY glDebugOutput(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar *message,
+	const void *userParam)
+{
+	// ignore non-significant error/warning codes
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+	std::cout << "---------------" << std::endl;
+	std::cout << "Debug message (" << id << "): " << message << std::endl;
+
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
+	case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
+	case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
+	} std::cout << std::endl;
+
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
+	case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
+	case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
+	case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
+	case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
+	case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
+	} std::cout << std::endl;
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
+	case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
+	case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
+	} std::cout << std::endl;
+	std::cout << std::endl;
+}
+
 // Properties
 const GLuint SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
@@ -48,6 +120,15 @@ GLfloat lastFrame = 0.0f;
 
 GLuint draw_mode = 1;
 
+struct Character {
+	GLuint     TextureID;  // ID handle of the glyph texture
+	glm::ivec2 Size;       // Size of glyph
+	glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
+	GLuint     Advance;    // Offset to advance to next glyph
+};
+
+std::map<GLchar, Character> Characters;
+
 // The MAIN function, from here we start our application and run our Game loop
 int main()
 {
@@ -59,6 +140,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", nullptr, nullptr); // Windowed
 	glfwMakeContextCurrent(window);
@@ -75,12 +157,79 @@ int main()
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+	{
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(glDebugOutput, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
+	
+
 	// Define the viewport dimensions
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	// Setup some OpenGL options
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
+
+#pragma endregion
+
+#pragma region font
+
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+		std::cout << "Error::FREETYPE: Could not init FreeType Library" << std::endl;
+
+	FT_Face face;
+	if (FT_New_Face(ft, "../Public/Font/BAUHS93.TTF", 0, &face))
+		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+
+	FT_Set_Pixel_Sizes(face, 0, 48);
+	if (FT_Load_Char(face, 'X', FT_LOAD_RENDER))
+		std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+	for (GLubyte c = 0; c < 128; c++)
+	{
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+		// Generate texture
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+		// Set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			face->glyph->advance.x
+		};
+		Characters.insert(std::pair<GLchar, Character>(c, character));
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
 
 #pragma endregion
 
@@ -109,6 +258,7 @@ int main()
 
 	glm::vec3 lightPosition = glm::vec3(2.0, 4.0, -2.0);
 	glm::vec3 lightColor = glm::vec3(0.2, 0.2, 0.6);
+
 
 #pragma endregion
 

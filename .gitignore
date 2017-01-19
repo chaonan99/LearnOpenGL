@@ -12,6 +12,8 @@ nanosuit/
 skybox/
 planet/
 rock/
+*.zip
+*.ttf
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
